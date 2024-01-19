@@ -50,7 +50,7 @@
 ***********************************************
 *** Define programme for updating amenities ***	
 ***********************************************
-	
+/*	
 // Define program to adjust fundamentals so to bring model heights closer to observed heights
 capture program drop CONV 														// Drop any pre-existing program of the same name
 	// Start defining program
@@ -66,10 +66,34 @@ capture program drop CONV 														// Drop any pre-existing program of the 
 end
 // Program ends
 
+capture program drop INVERT 														// Drop any pre-existing program of the same name
+program define INVERT
+// Initialization	
+	local PopGap = abs(sL-`1')											// Initial value of population gap 
+	local O = 0 																// Initial value of correlation between obsered and model heights
+
+// Keep iterating
+	while `O' <0.999 | `PopGap'  > 1000 {										// While gap is above tolerance and correlation is below target
+	qui CONV `1' `2'													// Update amenities using program and convergence factor
+	qui reg HEIGHT_R S_x_R														// Aux. regression to recover R2 of observed height and model height	
+	qui local O =  e(r2) 														// Update correlation
+	qui local PopGap = abs(sL-`1')												// Update gap
+	display "Height correlation: `O', population gap = `PopGap'"				// Displace correlation and gap to user
+	}
+// Past this point we have converged
+end
+*/
+
+***************************
+*** Invert fundamentals ***	
+***************************
+
+	INVERT 1000000 0.05															// Use programme to find fundamentals that rationalize fuzzy height gradient and ensure a population in tall buildings of 1000000 (convergence at convergence parameter 0.05)
+
 ************************************
 *** Iteratively update amenities ***	
 ************************************
-
+/*
 // set the target population: Select your value
 	global emptarget = 1000000
 
@@ -86,7 +110,7 @@ end
 	display "Height correlation: `O', population gap = `PopGap'"				// Displace correlation and gap to user
 	}
 // Past this point we have converged
-
+*/
 ***************************
 *** Inspect the outcome ***	
 ***************************
@@ -147,6 +171,10 @@ end
 	grc1leg skyline tech, cols(1) scale(0.8)
 	graph export "FIGS\FIG_SkylineCHmodel.png", width(2400) height(1800) replace 	
 
+
+// Save output
+	save "DATA\SIMULATION\INVERTED.dta", replace
+	
 **************************************
 *** Do file successfully completed ***	
 **************************************

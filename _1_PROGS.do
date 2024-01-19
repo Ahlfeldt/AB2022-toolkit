@@ -150,13 +150,50 @@ program SOLVER // Start defineing SOLVER program
 		qui sum y																// Summarize wage												
 		qui scalar sy = r(mean)													// Save wage as scalar
 		qui replace S_x = max(S_x_C,S_x_R)										// Save highest possible building of any potential use at a given location
-		scalar list L_hat_demand L_hat_supply sL sy					// Output wage adjustement factor, labour demand & supply, and wage for inspection of the user
+		scalar list L_hat_demand L_hat_supply sL sy								// Output wage adjustement factor, labour demand & supply, and wage for inspection of the user
 	// Land use
 		replace URBAN = U < 3													// Update indicator for urban use	
 		replace COM = U == 1													// Update indicator for commercial use
 	// Solver ends	
 	end
-// Solver programme completed
+// SOLVER programme completed
+********************************************************************************
+
+
+********************************************************************************
+// Algorithm that implmenents iterative procedure to find market-clearing wage	 
+
+capture program drop WAGE
+program define WAGE
+		qui local obj_int = abs((L_hat_demand+0)/(L_hat_supply+0)-1)			// Define value in the objective function of the internal loop, the percentage difference between demand and supply in the model. 
+																				// When this relative difference approaches zero, we have found the WAGE that clears the market 
+		while `obj_int' > 0.01 {												// Keep iterating while objective is larger than tolerance level	
+			
+			// Compute the wage adjustment factor to be used in the iterative procedure to solve for the wage
+			qui if L_hat_supply == 0 { // If no labour supply increase wage by 20%
+				scalar y_factor = 1.2
+			}
+				else {
+					if L_hat_demand == 0 { // If no labour demand decrease wage by 10%
+						scalar y_factor = 0.8
+					}
+				else {
+						scalar  y_factor =  (L_hat_demand / L_hat_supply)^0.01 // Adjust depending on the ration of labour demand to labour supply => if labour demand exceeds supply, increase the wage and vice versa
+				}
+				}			
+			// Now adjust the wage accordingly
+			qui replace y = 0.5 * y + 0.5*y*y_factor						// Use the average of the old wage and a new wage, updated by the wage adjustment factor
+			// Update the model solutions with the new wage
+			qui SOLVER		
+			
+			// Compute the new internal objective value and report it alongside the current external objective value to the user
+			qui local obj_int = abs((L_hat_demand+0.0001)/(L_hat_supply+0.0001)-1)
+			display "internal objective " round(`obj_int', 0.001) " external objective " round( `obj_ext', 0.001)
+		
+		// Close the internal loop, if we pass beyond the point, we have found the market-clearing wage conditional on our guess of total employment
+		} 
+end
+// Programme completed
 ********************************************************************************
 
 ********************************************************************************	
@@ -190,36 +227,9 @@ program FINDEQ // Syntax theta_C theta_R omega_C omega_R beta_C a_bar_C a_bar_R 
 	
 		// Initialization for the inner loop  	
 		qui SOLVER																// Use SOLVER to solve for endogenous objects
-		qui local obj_int = abs((L_hat_demand+0)/(L_hat_supply+0)-1)			// Define value in the objective function of the internal loop, the percentage difference between demand and supply in the model. 
-																				// When this relative difference approaches zero, we have found the WAGE that clears the market 
-	
-		// Begin inner loop
-		while `obj_int' > 0.01 {												// Keep iterating while objective is larger than tolerance level	
-			
-			// Compute the wage adjustment factor to be used in the iterative procedure to solve for the wage
-			qui if L_hat_supply == 0 { // If no labour supply increase wage by 20%
-				scalar y_factor = 1.2
-			}
-				else {
-					if L_hat_demand == 0 { // If no labour demand decrease wage by 10%
-						scalar y_factor = 0.8
-					}
-				else {
-						scalar  y_factor =  (L_hat_demand / L_hat_supply)^0.01 // Adjust depending on the ration of labour demand to labour supply => if labour demand exceeds supply, increase the wage and vice versa
-				}
-				}			
-			// Now adjust the wage accordingly
-			qui replace y = 0.5 * y + 0.5*y*y_factor						// Use the average of the old wage and a new wage, updated by the wage adjustment factor
-			// Update the model solutions with the new wage
-			qui SOLVER		
-			
-			// Compute the new internal objective value and report it alongside the current external objective value to the user
-			qui local obj_int = abs((L_hat_demand+0.0001)/(L_hat_supply+0.0001)-1)
-			display "internal objective " round(`obj_int', 0.001) " external objective " round( `obj_ext', 0.001)
 		
-		// Close the internal loop, if we pass beyond the point, we have found the market-clearing wage conditional on our guess of total employment
-		} 
-		
+		// Solve for market clearing wage										// Use WAGE programme
+		WAGE
 	// Test if the city is sustainable	
 	local test = L_hat_demand+L_hat_supply 										// Check if labour demand and supply converged to zero
 		if `test' == 0 { // If so, stop
@@ -244,7 +254,66 @@ program FINDEQ // Syntax theta_C theta_R omega_C omega_R beta_C a_bar_C a_bar_R 
 
 	// Solver ends	
 	end
-// Solver programme completed
+// Programme completed
+********************************************************************************
+
+	
+************************************************
+*** Define programme for inverting amenities ***	
+************************************************
+
+********************************************************************************
+// Define program to adjust fundamentals so to bring model heights closer to observed heights
+
+capture program drop CONV 														// Drop any pre-existing program of the same name
+	// Start defining program
+	program CONV // Syntax: 1 Target population 2 convergence parameter 		
+		foreach name in R C {													// Adjust for both land uses
+			// If observed height is larger than realized height, we inflate amenities. This is done by using HEIGHT/S as an adjustment factor that inflates amenities a. 
+			replace a_rand_`name' = (1-`1') *a_rand_`name' + (`1') * (HEIGHT_`name' / S_star_x_`name') *a_rand_`name'	 // We use the weighted combination of old amenities and new inflated amenities
+			replace a_rand_`name' = 0 if a_rand_`name' == .						// If there is no height in data, we set amenity to a theory-consistent zero
+		}
+	FINDEQ 0.5 0.55 0.03 0.07 0.030 2 1 0.01 0.005 1.4 1.4 30 999 999			// Solve the model under updated fundamentals
+	GHEIGHTB name0																// Graph updated spatial structure												
+end
+// Program ends
+********************************************************************************
+
+********************************************************************************
+// Define program to adjust fundamentals so to bring model employment closer to target employment
+capture program drop EMP
+program EMP
+foreach name in R C {
+	replace a_rand_R = a_rand_R * (`1'/ sL)^0.01								// Adjust residential amenities to reach target population. If target larger than population in model, we inflate residential amenities to make the city more attractive
+	FINDEQ 0.5 0.55 0.03 0.07 0.030 2 1 0.01 0.005 1.4 1.4 30 999 999			// Solve the model under updated fundamentals
+}
+end
+// Program ends
+********************************************************************************
+
+********************************************************************************
+// Iterative programme calling CONV until height has converged to values in data and population has converged to target
+capture program drop INVERT 													// Drop any pre-existing program of the same name
+program define INVERT
+// Initialization	
+	local PopGap = abs(sL-`1')													// Initial value of population gap 
+	local O = 0 																// Initial value of correlation between obsered and model heights
+
+// Keep iterating
+	while `O' <0.999  {															// While correlation is below target
+	qui CONV `2'																// Update amenities using program and convergence factor
+	qui reg HEIGHT_R S_x_R														// Aux. regression to recover R2 of observed height and model height	
+	qui local O =  e(r2) 														// Update correlation
+	display("Correlation `O'")
+	}
+// Past this point we have converged
+	while `PopGap' > 1000  {													// While gap is above tolerance
+		qui EMP `1'																// Update amenities using program and employment target
+		local PopGap = abs(sL-`1')												// Update gap
+	display("Employment gap `PopGap'")	
+	}
+// Past this point we have converged
+end
 ********************************************************************************
 
 ***********************************************************************
