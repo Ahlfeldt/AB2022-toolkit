@@ -1,6 +1,6 @@
 The economics of skyscrapers: A synthesis
 
-Teaching directory
+Toolkit
 
 (c) Gabriel M. Ahlfeldt
 
