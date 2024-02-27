@@ -14,6 +14,9 @@
 // Load synthetic data
 	u "DATA\SIMULATION\INVERTED.dta", clear										// Load synthetic data set with inverted fundamentals
 	GHEIGHTB name0																// Plot city structure
+// Use equilibrium solver to update endogenous variables	
+// Syntax 	theta_C	theta_R	omega_C	omega_R	beta_C	a_bar_C	a_bar_R	tau_C	tau_R	c_C		c_R 	r_a 	S_bar_C	S_bar_R
+	FINDEQ 		0.5 	0.55 	0.03 	0.07 	0.030 	2		1 		0.01 	0.005 	1.4 	1.4 	150		999		999	
 	scalar list sy sL															// List equilibrium wage and total employment
 	
 **********************************
