@@ -8,9 +8,7 @@
 *** Syntax ***
 **************
 
-Enter AB2022 followed by 13 real numbers
-
-AB2022 theta_C theta_R omega_C omega_R beta_C a_bar_C a_bar_R tau_C tau_R c_C c_R r_a S_bar_C S_bar_R
+Once you have copied AB2022.ado file to your ado folder, Stata will generate floor space, height, and land rent gradients under the baseline parameterization. 
 
 Below are a brief description and canonical parameter values from Ahlfeldt & Barr (2022)
 
@@ -29,12 +27,21 @@ r_a 		Agricultural land rents								150
 S_bar_C 	Commercial height limit								999
 S_bar_R		Residential height limit							999
 
-For example, you may use the program as follows:
+You can change any of the parameters by adding "parameter=value" as an argument. 
+For example, to add a 50 floor height limit for commercial buildings, you can enter: 
 
-AB2022 		0.5 	0.55 	0.03 	0.07 	0.030 	2		1 		0.01 	0.005 	1.4 	1.4 	150		999		999
+AB2022 "S_bar_C=50"
+
+You can enter multiple alterations to baseline parameter values. For example, to add   
+to add a 50 floor height limit for commercial buildings and a 10-floor height limit for residential buildings, you can enter:
+
+AB2022 "S_bar_R=100"
+
+And so forth...
 
 Enjoy using the toolkit */ 
 
+capture set scheme stcolor
 
 ***********************************************
 *** Define programmes for solving the model ***
@@ -301,22 +308,40 @@ else {									// city is small
 	gen SHADEU = .						// Auxiliary indicator used in graphs	
 	
 	// Set scalars based on parameter choices by the user
-	scalar theta_C = `1'
-	scalar theta_R = `2'
-	scalar omega_C = `3'
-	scalar omega_R = `4'	
-	scalar beta_C = `5'
-	scalar a_bar_C = `6'
-	scalar a_bar_R = `7'
-	scalar tau_C = `8'
-	scalar tau_R = `9'
-	scalar c_C = `10'
-	scalar c_R = `11'
-	qui replace r_a = `12'	
-	scalar S_bar_C = `13'
-	scalar S_bar_R = `14'
+	scalar theta_C 	=	0.5
+	scalar theta_R	=	0.55
+	scalar omega_C 	=	0.03
+	scalar omega_R 	=	0.07
+	scalar beta_C 	=	0.03
+	scalar a_bar_C 	=	2
+	scalar a_bar_R 	=	1
+	scalar tau_C 	=	0.01
+	scalar tau_R 	=	0.005
+	scalar c_C 		=	1.4
+	scalar c_R 		=	1.4
+	scalar r_a 		=	150
+	scalar S_bar_C 	=	999
+	scalar S_bar_R	=	999
 	
-	// Initialization
+// Override with user entry
+	capture scalar `1'
+	capture scalar `2'
+	capture scalar `3'
+	capture scalar `4'
+	capture scalar `5'
+	capture scalar `6'
+	capture scalar `7'
+	capture scalar `8'
+	capture scalar `9'
+	capture scalar `10'
+	capture scalar `11'
+	capture scalar `12'
+	capture scalar `13'
+	capture scalar `14'
+	qui drop r_a
+	qui gen r_a = r_a
+	
+// Initialization
 	SOLVER 																		// Run initial round of the solver
 	local obj_ext = abs(L/(0.5*(L_hat_demand+L_hat_supply))-1)					// Define value in the objective function of the external loop, the percentage difference between total employment L (here the set value) and hte average of current demand and supply in the model
 																				// When this relative difference approaches zero, we have have found TOTAL EMPLOYMENT
