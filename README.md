@@ -8,7 +8,7 @@ Version 0.91, 2024-01
 
 General instructions:
 
-This toolkit complements the article by Ahlfeldt & Barr (2022), published in the Journal of Urban Economics. The toolkit contains a subset of codes used to generate the results in the article. Detailed comments have been added to scripts to provide intuition and links to the model described in the article. Some counterfactuals have been added for didactic purposes. All programmes have been written using Stata 18. However, the code should also run on earlier version. Programmes do not use user-written ado files. 
+This toolkit complements the article by Ahlfeldt & Barr (2022), published in the Journal of Urban Economics. The toolkit contains a Stata ado file with a user-friendly syntax. The ado program solves for the spatial general equilibrium and illustrates floor space rent gradients, height gradients, land rent gradients, the land use pattern, as well as total employment and wage. The toolkit also contains a walkthrough contianing codes that generate a subset of results in the article. It also generates some additional counterfactuals that can be of didactic use. Detailed comments have been added to scripts to provide intuition and links to the model described in the article. All programmes have been written using Stata 18. However, the code should also run on earlier version. Programmes do not use user-written ado files. 
 
 Folders
 
