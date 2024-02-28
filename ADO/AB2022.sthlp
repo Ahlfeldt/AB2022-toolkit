@@ -3,7 +3,7 @@
 help for {hi:AB2022}
 {hline}
 
-{title:Gradient Solver for "The economics of skyscrapers"}
+{title:Gradient Solver for "Ahlfeldt & Barr (2022): The economics of skyscrapers"}
 
 {title:Author}
 
@@ -11,10 +11,7 @@ Gabriel M Ahlfeldt, 02/2024
 
 {title:Description}
 
-AB2022 is a gradient solver developed by Gabriel M Ahlfeldt, designed 
-for the analysis presented in Ahlfeldt & Barr (2022): "The economics 
-of skyscrapers". This command generates floor space, height, and land 
-rent gradients under the baseline parameterization.
+AB2022 is a gradient solver developed by Gabriel M Ahlfeldt, based on the model published in Ahlfeldt & Barr (2022): "The economics of skyscrapers", Journal of Urban Economics. The programme solves for the spatial general equilibrium and illustrates floor space rent gradients, height gradients, land rent gradients, the land use pattern, as well as total employment and wage. 
 
 {title:Syntax}
 
