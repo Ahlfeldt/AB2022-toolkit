@@ -172,7 +172,7 @@ program GHEIGHT
 		qui local max = round(r(max),25)
 		qui local step = round(`max'/4, 5)
 		twoway  (area SHADEU x, color(gs14)) (area SHADE x, color(gs12)) (line S_x_C x , color(red)  	   lpattern(longdash)) (line S_x_R x if x < 0, color(blue) lpattern(shortdash)) (line S_x_R x if 		x > 0, color(blue) lpattern(shortdash)), ///
-		graphregion(color(white)) ylabel(0[`step']`max') xlabel(-50[25]50) xtitle("") ytitle("Building height") legend(order(3 "Commercial" 4 "Residential") cols(2) pos(6)) title("Building height") name("`1'", replace) xsize(5) ysize(5)
+		graphregion(color(white)) ylabel(0[`step']`max') xlabel(-50[25]50) xtitle("") ytitle("Building height") legend(order(3 "Commercial" 4 "Residential") cols(2) pos(6)) title("Building height") name("`1'", replace) xsize(5) ysize(5)   nodraw  
 		end // Solver ends
 ********************************************************************************
 
@@ -188,7 +188,7 @@ program GBIDRENT
 		qui replace  SHADE = URBAN*COM*(int(`top'/1))
 		qui replace SHADEU = URBAN*(int(`top'))	
 		twoway  (area SHADEU x, color(gs14)) (area SHADE x, color(gs12)) (line p_bar_x_C x , color(red) lpattern(longdash)) (line p_bar_x_R x if x > 0, color(blue) lpattern(shortdash)) (line p_bar_x_R x if x < 0, color(blue) lpattern(shortdash))  ///
-		,   graphregion(color(white)) xlabel(-50[25]50) xtitle("") ytitle("Floor space rent") legend(order(1 "Urban area" 2 "CBD area" 3 "Commercial" 4 "Residential") cols(4) pos(6)) title("Floor space rent") name(`1', replace) 
+		,   graphregion(color(white)) xlabel(-50[25]50) xtitle("") ytitle("Floor space rent") legend(order(1 "Urban area" 2 "CBD area" 3 "Commercial" 4 "Residential") cols(4) pos(6)) title("Floor space rent") name(`1', replace)    nodraw  
 		end // Solver ends
 ********************************************************************************
 
@@ -202,7 +202,7 @@ program GLANDRENT
 	qui replace SHADE = URBAN*COM*(int(`top')+1)
 	qui replace SHADEU = URBAN*(int(`top')+1)
 	twoway (area SHADEU x, color(gs14)) (area SHADE x, color(gs12)) (line r_x_C x , color(red)  lpattern(longdash)) (line r_x_R x , color(blue) lpattern(shortdash)) (line r_a x, color(black) lpattern(solid)), ///
-	  graphregion(color(white))  xlabel(-50[25]50) xtitle("") ytitle("Land bid rent") legend(order(3 "Commercial" 4 "Residential" 5 "Agricultural" 1 "Urban area" 2 "CBD")  size(vsmall) cols(5) pos(6)) title("Land bid rent") name(`1', replace)
+	  graphregion(color(white))  xlabel(-50[25]50) xtitle("") ytitle("Land bid rent") legend(order(3 "Commercial" 4 "Residential" 5 "Agricultural" 1 "Urban area" 2 "CBD")  size(vsmall) cols(5) pos(6)) title("Land bid rent") name(`1', replace)   nodraw  
 end
 
 ********************************************************************************
@@ -227,7 +227,7 @@ program GHEIGHTB
 		qui local max = round(r(max),5)
 		qui local step = round(`max'/4, 5)
 		twoway  (bar S_x_C x if U == 1, color(red) lcolor(none) barwidth(0.1) bargap(1)	   lpattern(solid)) (bar S_x_R x if U == 2, barwidth(0.01) lcolor(none) color(blue) lpattern(solid)) (bar S_x_R x if 	U == 2, barwidth(0.01) color(blue) lcolor(none) lpattern(solid)), ///
-		graphregion(color(white)) ylabel(0[`step']`max') xlabel(-50[25]50) xtitle("") ytitle("Building height") legend(order(1 "Commercial" 2 "Residential") cols(2) pos(6))  name("`1'", replace) xsize(10) ysize(5) note("Mean coefficent of variation within one-distance-unit bins = `CV'") // (area SHADEU x, color(gs14)) (area SHADE x, color(gs12)) 
+		graphregion(color(white)) ylabel(0[`step']`max') xlabel(-50[25]50) xtitle("") ytitle("Building height") legend(order(1 "Commercial" 2 "Residential") cols(2) pos(6))  name("`1'", replace) xsize(10) ysize(5) note("Mean coefficent of variation within one-distance-unit bins = `CV'")   nodraw   // (area SHADEU x, color(gs14)) (area SHADE x, color(gs12)) 
 		end // Solver ends
 		
 ********************************************************************************	
@@ -328,13 +328,13 @@ program AB2022 // Syntax theta_C theta_R omega_C omega_R beta_C a_bar_C a_bar_R 
 	scalar a_bar_C = 1.5				// Set commerical fundamental productivity
 	
 if `large' == 1 {						// If city is large
-	set obs 20001						// Generate 20001 observations, one for each location along a line. 1 for the center. 10000 in either direction
+	qui set obs 20001						// Generate 20001 observations, one for each location along a line. 1 for the center. 10000 in either direction
 	qui gen x = _n -10001					// Generate running variable, 0 at center
 	qui replace x = x / 100					// Rescale running variable so that is can be thought of being in km
 	qui gen D = abs(x)						// Generate distance from the centre as absolute value of the running variable
 }
 else {									// city is small 
-	set obs 10001						// Generate 10001 observations, one for each location along a line. 1 for the center. 5000 in either direction
+	qui set obs 10001						// Generate 10001 observations, one for each location along a line. 1 for the center. 5000 in either direction
 	qui gen x = _n -5001					// Generate running variable, 0 at center
 	qui replace x = x / 100					// Rescale running variable so that is can be thought of being in km
 	qui gen D = abs(x)						// Generate distance from the centre as absolute value of the running variable
@@ -407,7 +407,8 @@ else {									// city is small
 	qui gen r_a = r_a
 	
 // Initialization
-	SOLVER 																		// Run initial round of the solver
+	display "<<< solving for the equilibrium >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	qui SOLVER 																		// Run initial round of the solver
 	local obj_ext = abs(L/(0.5*(L_hat_demand+L_hat_supply))-1)					// Define value in the objective function of the external loop, the percentage difference between total employment L (here the set value) and hte average of current demand and supply in the model
 																				// When this relative difference approaches zero, we have have found TOTAL EMPLOYMENT
 		
@@ -418,7 +419,7 @@ else {									// city is small
 		qui SOLVER																// Use SOLVER to solve for endogenous objects
 		
 		// Solve for market clearing wage										// Use WAGE programme
-		WAGE
+		qui WAGE
 	// Test if the city is sustainable	
 	local test = L_hat_demand+L_hat_supply 										// Check if labour demand and supply converged to zero
 		if `test' == 0 { // If so, stop
@@ -439,7 +440,6 @@ else {									// city is small
 	}
 	
 	// Report key labour market outcomes to reader
-	display "<<<<<<<<<<<< convergence achieved >>>>>>>>>>>>"
 	foreach name in  L_hat_demand L_hat_supply sL sy x0 x1 {
 		local `name' = round(`name',0.01)
 		}
@@ -451,12 +451,13 @@ else {									// city is small
 	display "Urban radius: `x1'"
 
 * Create graph	
-	GBIDRENT name1
-	GHEIGHT name0
-	GLANDRENT name3
+	display "<<< drawing graphs >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	qui GBIDRENT name1
+	qui GHEIGHT name0
+	qui GLANDRENT name3
 	local sL = round(`sL',1)
 	grc1leg name1 name0 name3, cols(3) leg(name3) xsize(15) ysize(5) note("Total employment: `sL'" "Wage: `sy'" "CBD radius: `x0'" "Urban area radius: `x1'")	
-	
+	display "<<< all done >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"	
 	// Solver ends	
 	end
 // Programme completed
