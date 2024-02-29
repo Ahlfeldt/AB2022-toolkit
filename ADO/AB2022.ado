@@ -1,7 +1,8 @@
 **********************************************************************
 *** Gradient solver	for 										   ***
-*** Codes for Ahlfeldt & Barr (2022): The economics of skyscrapers ***											
-*** (c) Gabriel M Ahlfeldt, 01/2024								   ***
+*** Codes for Ahlfeldt & Barr (2022): The economics of skyscrapers ***	
+*** Version 0.93												   ***											
+*** (c) Gabriel M Ahlfeldt, 02/2024								   ***
 **********************************************************************
 
 
@@ -28,6 +29,7 @@ c_R 		Residential baseline construction factor			1.4
 r_a 		Agricultural land rents								150
 S_bar_C 	Commercial height limit								999
 S_bar_R		Residential height limit							999
+x_1_bar		Urban growth boundary (max. radius of urban area)	999
 
 You can change any of the parameters by adding "parameter=value" as an argument. 
 For example, to add a 50 floor height limit for commercial buildings, you can enter: 
@@ -74,8 +76,8 @@ program SOLVER // Start defineing SOLVER program
 		qui replace U = 1 if r_x_C > r_x_R & r_x_C > r_a						// Residential land rent is highest
 	
 	// Outer edge of residential zone	
-		qui sum x if U == 3 &  x >= 0 											// Take the inner margin of the agricultural zone
-		qui scalar x1 = r(min)
+		qui sum x if U < 3 &  x >= 0 											// Take the inner margin of the agricultural zone
+		qui scalar x1 = r(max)
 		qui local x1 = x1	
 		
 	// Outer edge of residential zone	
@@ -387,7 +389,8 @@ else {									// city is small
 	scalar r_a 		=	150
 	scalar S_bar_C 	=	999
 	scalar S_bar_R	=	999
-
+	scalar x_1_bar 	=	999
+	
 // Override with user entry
 	capture scalar `1'
 	capture scalar `2'
@@ -403,11 +406,14 @@ else {									// city is small
 	capture scalar `12'
 	capture scalar `13'
 	capture scalar `14'
+	capture scalar `15'
 	qui drop r_a
 	qui gen r_a = r_a
 	
+	
 // Initialization
 	display "<<< solving for the equilibrium >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+	qui drop if D > x_1_bar														// Dropping anything outside the user-specified urban growth boundary
 	qui SOLVER 																		// Run initial round of the solver
 	local obj_ext = abs(L/(0.5*(L_hat_demand+L_hat_supply))-1)					// Define value in the objective function of the external loop, the percentage difference between total employment L (here the set value) and hte average of current demand and supply in the model
 																				// When this relative difference approaches zero, we have have found TOTAL EMPLOYMENT
