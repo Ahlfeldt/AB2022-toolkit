@@ -65,6 +65,8 @@ The complete Ahlfeldt-Barr-(2022)-toolkit is available as a GitHub repository. {
 
 The toolkit and the AB2022 ado file build on: 
 
-Ahlfeldt, Barr (2022): The Economics Skyscrapers: A synthesis. Journal of Urban Economics, 129. {browse "https://doi.org/10.1016/j.jue.2021.103419":[link]}
+Ahlfeldt, G., Barr, J. (2022): The Economics Skyscrapers: A synthesis. Journal of Urban Economics, 129. {browse "https://doi.org/10.1016/j.jue.2021.103419":[link]}
+
+When using this programme or the toolkit in your work, please cite Ahlfeldt & Barr (2022).
 
 {title:End of help file}
