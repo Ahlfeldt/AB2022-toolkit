@@ -174,7 +174,7 @@ program define WAGE
 				scalar y_factor = 1.2
 			}
 				else {
-					if L_hat_demand == 0 { // If no labour demand decrease wage by 10%
+					if L_hat_demand == 0 { // If no labour demand decrease wage by 20%
 						scalar y_factor = 0.8
 					}
 				else {
