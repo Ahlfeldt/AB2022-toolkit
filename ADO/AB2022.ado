@@ -71,9 +71,9 @@ program SOLVER // Start defineing SOLVER program
 		
 	// Define land use
 		qui replace U = . 														// Clear any pre-existing value
-		qui replace U = 3 if r_a > r_x_C & r_a > r_x_R							// Agrictultural land rent is highest
-		qui replace U = 2 if r_x_R  > r_x_C & r_x_R > r_a						// Commercial land rent is highest
-		qui replace U = 1 if r_x_C > r_x_R & r_x_C > r_a						// Residential land rent is highest
+		qui replace U = 3 if r_a > r_x_C & r_a > r_x_R							// Agricultural land rent is highest
+		qui replace U = 2 if r_x_R  > r_x_C & r_x_R > r_a						// Residential land rent is highest
+		qui replace U = 1 if r_x_C > r_x_R & r_x_C > r_a						// Commercial land rent is highest
 	
 	// Outer edge of residential zone	
 		qui sum x if U < 3 &  x >= 0 											// Take the inner margin of the agricultural zone
