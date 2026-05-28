@@ -129,8 +129,8 @@ program SOLVER // Start defineing SOLVER program
 		qui replace S_x_R = min(S_bar_R, (a_x_R / (c_R*(1+theta_R)))^(1/(theta_R-omega_R)) ) if U == 2
 	
 	// Comute bid rents
-		qui replace p_bar_x_C = a_x_C * 1/(1-omega_C)*S_x_C^omega_C				// According to Eq. (2)
-		qui replace p_bar_x_R = a_x_R * 1/(1-omega_R)*S_x_R^omega_R				// According to Eq. (4)
+		qui replace p_bar_x_C = a_x_C * 1/(1+omega_C)*S_x_C^omega_C				// According to Eq. (2)
+		qui replace p_bar_x_R = a_x_R * 1/(1+omega_R)*S_x_R^omega_R				// According to Eq. (4)
 	
 	// Compute labour demand
 		qui replace L_x_C = alpha_C/(1-alpha_C)*p_bar_x_C / y * S_x_C if U == 1 // using MRS in Eq. (12)
