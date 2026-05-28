@@ -2,7 +2,7 @@
 
 (c) Gabriel M. Ahlfeldt
 
-Version 0.93, 2024-05
+Version 0.95, 2026-05
 
 **General instructions:**
 
