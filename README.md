@@ -54,3 +54,5 @@ Ahlfeldt, Barr (2022): The Economics Skyscrapers: A synthesis. Journal of Urban 
 **Acknowledgement**: 
 
 I thank Immanuel Feld for spotting a bug in the code that was addressed in version 0.94.
+I thank Kate Bablyak for spotting a bug in the code that was addressed in version 0.95.
+
